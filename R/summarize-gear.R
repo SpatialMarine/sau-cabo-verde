@@ -15,6 +15,12 @@ data_path <- "~/SML Dropbox/gitdata/sau-cabo-verde/SeaAroundUs_Cabo_Verde_fishin
 # Load dataset
 data <- read.xlsx(data_path, sheet = 1)
 
+# Calculate reported catch per year
+reported_year <- data %>%
+  filter(reporting_status == "Reported") %>%
+  group_by(year) %>%
+  summarise(landed_value = sum(landed_value, na.rm = TRUE)/1e6)
+
 # Rename gear types
 # keep: purse seine, longline, gillnets, bottom trawl, other, unkown
 # the rest of gears group them as "small scale"
@@ -61,6 +67,28 @@ p <- ggplot(summary_gear_year, aes(x = year, y = landed_value, fill = gear_type)
     expand = c(0, 0)
   ) +
   guides(fill = guide_legend(ncol = 5))
+
+# add line for reported catch
+p <- p +
+  geom_line(
+    data = reported_year,  # Use reported_year data for the line
+    aes(x = year, y = landed_value),
+    color = "black",       # Black line
+    size = 1,               # Line thickness
+    inherit.aes = FALSE    # Do not inherit aesthetics from ggplot()
+  ) +
+  # add vertical line at 1955 and up to 30
+  geom_segment(
+    aes(
+      x = 1955, xend = 1955,  # Fixed x position
+      y = 4.4, yend = 30  # Start and end points for y
+    ),
+    linetype = "solid",    # Solid line
+    color = "black",         # Line color
+    size = 1,
+    inherit.aes = FALSE    # Do not inherit aesthetics from ggplot()
+  ) +
+  annotate("text", x = 1956, y = 32, label = "Reported catch", size = 6)
 
 # Save the plot
 ggsave("fig/catch_data_CV_gear.png", p, width=12, height=8, dpi = 300, bg = "white")
