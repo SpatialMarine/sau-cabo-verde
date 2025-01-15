@@ -33,3 +33,8 @@ p <- ggplot(reliability_year, aes(x = year, y = reliability)) +
     plot.margin = margin(t = 10, r = 20, b = 10, l = 10),  # Add space on the right
     axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0))
   )
+
+
+# Save the plot
+ggsave("fig/reliability.png", p, width=12, height=8, dpi = 300, bg = "white")
+
